@@ -24,8 +24,21 @@ function loadMessages() {
 
 const { messages } = loadMessages();
 
+const langs = Object.keys(messages);
+const namespaces = ["constants", "errors", "wallet"];
+langs.forEach((lang) => {
+  namespaces.forEach((key) => {
+    for (let i in messages[lang][key]) {
+      messages[lang][i] = messages[lang][key][i];
+    }
+    if (key === "constants") {
+      delete messages[lang][key];
+    }
+  });
+});
+
 const i18n = new VueI18n({
-  locale: session.getItem("lang") || "zh", // 语言标识
+  locale: session.getItem("lang") || "en", // 语言标识
   fallbackLocale: "en", // 找不到语言包默认
   messages,
   silentTranslationWarn: true,

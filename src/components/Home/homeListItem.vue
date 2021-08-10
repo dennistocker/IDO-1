@@ -2,57 +2,74 @@
   <div class="home-list-item">
     <div class="home-list-item-rough">
       <div class="home-list-item-rough-header">
-        <start-item-cell cellType="vertical">
+        <star-item-cell cellType="vertical">
           <!-- 项目logo -->
           <img :src="data.icon" />
           <span>{{ $t(`${data.prdName}`) }}</span>
-          <span>{{ $t(`${data.currency}`) }}</span>
-        </start-item-cell>
+          <span>({{ $t(`${data.assignCurrency}`) }})</span>
+        </star-item-cell>
       </div>
-      <start-space :size="20"></start-space>
+      <star-space :size="20"></star-space>
       <div class="home-list-item-rough-labels">
-        <start-button
+        <star-button
           v-for="(d, i) in data.labels"
           :key="i"
           light
           :style="
             mixinLabelColor(
               colorsInfo['label-text-color'],
-              colorsInfo['common-color']
+              colorsInfo['label-border-color']
             )
           "
-          >{{ $t(`${d.label}`) }}</start-button
+          >{{ $t(`${d.label}`) }}</star-button
         >
       </div>
-      <start-space :size="30"></start-space>
-      <div class="home-list-item-rough-icons">
+      <star-space :size="10"></star-space>
+      <div
+        class="home-list-item-rough-icons"
+        @mouseout.stop.prevent="changeHoverList(null, null, true)"
+      >
         <svg-icon
           v-for="(iconkey, index) in data.links"
           :key="index"
-          :name="iconkey.name + '-' + cardType"
+          :name="
+            isHoverList && isHoverList[index]
+              ? svgName(iconkey.name, cardType, true)
+              : svgName(iconkey.name, cardType)
+          "
           class="home-list-item-rough-icons-icon"
+          @mouseenter.stop.prevent="changeHoverList(index, true)"
+          @mouseleave.stop.prevent="changeHoverList(index, false)"
+          @click.stop.prevent="openURL(iconkey.url)"
         ></svg-icon>
+        <!-- getSvgName(iconkey.name, cardType) -->
+        <!-- :name="iconkey.name + '-' + cardType" -->
       </div>
-      <start-space :size="30"></start-space>
+      <star-space :size="20"></star-space>
       <div class="home-list-item-rough-infos">
-        <!-- utilsNumber.formatNumberMeta(data.amount, { grouped: true }).text -->
-        <start-item-cell :data="cellData('raiseTotal')"> </start-item-cell>
-        <start-item-cell :data="cellData('rate')"> </start-item-cell>
-        <start-item-cell :data="cellData('capTotal')"> </start-item-cell>
+        <star-item-cell :data="cellData('raiseTotal', data.payCurrency)">
+        </star-item-cell>
+        <star-item-cell
+          :data="cellData('rate', data.assignCurrency, data.payCurrency)"
+        >
+        </star-item-cell>
+        <star-item-cell :data="cellData('capTotal', data.assignCurrency)">
+        </star-item-cell>
       </div>
     </div>
   </div>
 </template>
 <script>
-import StartSpace from "@startUI/StartSpace.vue";
-import StartButton from "@startUI/StartButton.vue";
+import StarSpace from "@StarUI/StarSpace.vue";
+import StarButton from "@StarUI/StarButton.vue";
 import SvgIcon from "@components/SvgIcon/index.vue";
-import StartItemCell from "@startUI/StartItemCell.vue";
+import StarItemCell from "@StarUI/StarItemCell.vue";
 import { mapGetters } from "vuex";
 import mixinHome from "@/mixins/home.js";
 import utilsNumber from "@utils/number.js";
+import utilsTool from "@utils/tool";
 export default {
-  components: { StartButton, StartSpace, SvgIcon, StartItemCell },
+  components: { StarButton, StarSpace, SvgIcon, StarItemCell },
   mixins: [mixinHome],
   data() {
     return {};
@@ -66,23 +83,44 @@ export default {
       type: Object,
     },
   },
-  mounted() {},
+  mounted() {
+    this.isHoverList =
+      this.data &&
+      this.data.links &&
+      this.data.links.length &&
+      this.data.links.map(() => {
+        return false;
+      });
+  },
   methods: {
-    cellData(key) {
-      /////  这里写key
-      return {
-        title: key,
-        amount: utilsNumber.formatNumberMeta(this.data[key], { grouped: true })
-          .text,
-      };
-      // return data.
+    openURL(url) {
+      utilsTool.openNewWindow(url);
     },
-    // emit() {
-    //   this.$emit("clickMethod", {
-    //     cardType: this.cardType,
-    //     // id: this.data.id,
-    //   });
-    // },
+    cellData(key, currency, currencyB) {
+      let name, text;
+      if (key === "raiseTotal") {
+        name = this.$t("总募资");
+        text = `${
+          utilsNumber.formatNumberMeta(this.data[key], { grouped: true }).text
+        } ${currency}`;
+      }
+      if (key === "rate") {
+        name = this.$t("兑换比例");
+        text = `1 ${currency} = ${
+          utilsNumber.formatNumberMeta(this.data[key], { grouped: true }).text
+        } ${currencyB}`;
+      }
+      if (key === "capTotal") {
+        name = this.$t("总销售量");
+        text = `${
+          utilsNumber.formatNumberMeta(this.data[key], { grouped: true }).text
+        } ${currency}`;
+      }
+      return {
+        title: name,
+        text,
+      };
+    },
   },
   computed: {
     ...mapGetters("StoreHome", ["cardTypeColorInfo"]),
@@ -91,11 +129,6 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.xxx {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
 .home-list-item {
   width: 100%;
   .home-list-item-rough {
@@ -106,6 +139,7 @@ export default {
         display: inline-block;
         width: 48px;
         height: 48px;
+        border-radius: 50%;
       }
       span {
         color: #fff;
@@ -115,15 +149,25 @@ export default {
       }
     }
     .home-list-item-rough-labels {
-      .start-button {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      .star-button {
+        margin-right: 10px;
         border-radius: 2px;
-        padding: 5px 10px;
+        padding: 3px 6px;
+        margin-bottom: 10px;
+      }
+      .star-button + .star-button {
+        margin-left: 0px;
       }
     }
     .home-list-item-rough-icons {
       .home-list-item-rough-icons-icon {
         width: 24px;
         height: 24px;
+        &:hover {
+        }
       }
       .home-list-item-rough-icons-icon + .home-list-item-rough-icons-icon {
         margin-left: 10px;

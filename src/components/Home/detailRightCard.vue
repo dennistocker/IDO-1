@@ -27,112 +27,123 @@
     </div>
     <div class="detail-card-header">
       <img class="detail-card-header-logo" :src="cardInfo.icon" />
-      <!-- <start-space :size="30" :horizontal="true"></start-space> -->
+      <!-- <star-space :size="30" :horizontal="true"></star-space> -->
       <div class="detail-card-header-info">
         <div class="detail-card-header-info-currency">
           <span>
             {{ $t(`${cardInfo.prdName}`) }}
           </span>
-          <span> ({{ $t(`${cardInfo.currency}`) }}) </span>
+          <span> ({{ $t(`${cardInfo.currencyInfo.assignCurrency}`) }}) </span>
         </div>
         <div>
           <span class="detail-card-header-info-hash">
-            {{ cardInfo.address }}
+            {{ cardInfo.currencyInfo.assignAddress }}
           </span>
 
-          <start-tool-tip
+          <star-tool-tip
             :content="copyContent"
             placement="top"
             class="detail-card-header-info-copy"
           >
             <svg-icon
-              :name="`copy-${detailCardType}`"
-              @click="clipHash(cardInfo.address)"
+              :name="setSvgName(detailCardType, isHover)"
+              @click="clipHash(cardInfo.currencyInfo.assignAddress)"
+              @mouseenter.native.prevent="isHover = true"
+              @mouseleave.native.prevent="isHover = false"
             ></svg-icon>
-          </start-tool-tip>
+          </star-tool-tip>
         </div>
       </div>
     </div>
-    <start-space :size="20"></start-space>
+    <star-space :size="20"></star-space>
     <div class="detail-card-labels">
-      <start-button
+      <star-button
         v-for="(d, i) in cardInfo.labels"
         :key="i"
         light
         :style="
           mixinLabelColor(
             colorsInfo['label-text-color'],
-            colorsInfo['common-color']
+            colorsInfo['label-border-color']
           )
         "
-        >{{ $t(`${d.label}`) }}</start-button
+        >{{ $t(`${d.label}`) }}</star-button
       >
     </div>
-    <start-space :size="20"></start-space>
-    <div class="detail-card-icons">
+    <star-space :size="20"></star-space>
+    <div
+      class="detail-card-icons"
+      @mouseout.stop.prevent="changeHoverList(null, null, true)"
+    >
       <svg-icon
         v-for="(iconkey, index) in cardInfo.links"
         :key="index"
-        :name="iconkey.name + '-' + detailCardType"
+        :name="
+          isHoverList && isHoverList[index]
+            ? svgName(iconkey.name, detailCardType, true)
+            : svgName(iconkey.name, detailCardType)
+        "
         class="detail-card-icons-icon"
-        @click="handleToPath(iconkey)"
+        @mouseenter.native.prevent="changeHoverList(index, true)"
+        @mouseleave.native.prevent="changeHoverList(index, false)"
+        @click.stop.prevent="handleToPath(iconkey)"
       ></svg-icon>
     </div>
-    <start-space :size="20"></start-space>
+    <star-space :size="20"></star-space>
     <div class="detail-card-tabs">
-      <start-tab-bar
+      <star-tab-bar
         :value="tabCategory"
         @input="hanleTabChange"
         :items="tabItmes"
         :color="colorsInfo['common-color']"
       >
-      </start-tab-bar>
+      </star-tab-bar>
       <div class="detail-card-tabs-list">
         <template v-if="tabCategory === 'prodetail'">
-          <start-list
+          <star-list
             v-for="(d, index) in detailListAmount"
             :key="index"
             :data="d"
             type="prodetail"
             :bgColor="colorsInfo['list-bg-color']"
           >
-          </start-list>
+          </star-list>
         </template>
         <template v-if="tabCategory === 'time'">
-          <start-list
+          <star-list
             v-for="(d, index) in cardInfo.proTimeList"
             :key="index"
             :data="d"
             type="time"
             :bgColor="colorsInfo['list-bg-color']"
-          ></start-list>
+          ></star-list>
         </template>
       </div>
     </div>
-    <start-space :size="30"></start-space>
+    <star-space :size="30"></star-space>
     <div class="detail-card-footer">
       {{ this.lang === "zh" ? cardInfo.prdDesc : cardInfo.prdDescEn }}
     </div>
   </div>
 </template>
 <script>
-import StartSpace from "@startUI/StartSpace.vue";
+import StarSpace from "@StarUI/StarSpace.vue";
 import SvgIcon from "@components/SvgIcon/index.vue";
-import StartButton from "@startUI/StartButton.vue";
-import StartTabBar from "@startUI/StartTabBar.vue";
-import StartList from "@startUI/StartList.vue";
-import StartToolTip from "@startUI/StartToolTip.vue";
+import StarButton from "@StarUI/StarButton.vue";
+import StarTabBar from "@StarUI/StarTabBar.vue";
+import StarList from "@StarUI/StarList.vue";
+import StarToolTip from "@StarUI/StarToolTip.vue";
 import * as clipboard from "clipboard-polyfill/text";
 import { mapState, mapGetters } from "vuex";
 import mixinHome from "@mixins/home.js";
-import { mapActions } from "vuex";
 import session from "@utils/session";
 import { cloneDeep } from "lodash";
 import utilsNumber from "@utils/number.js";
-import { STC_PRECISION } from "@constants/contracts";
+import utilsTool from "@utils/tool";
 export default {
   data() {
     return {
+      isHover: false,
       copyContent: this.$t("复制"),
       tabCategory: "prodetail",
       tabItmes: [
@@ -150,37 +161,89 @@ export default {
   },
   mixins: [mixinHome],
   components: {
-    StartToolTip,
-    StartSpace,
+    StarToolTip,
+    StarSpace,
     SvgIcon,
-    StartButton,
-    StartTabBar,
-    StartList,
+    StarButton,
+    StarTabBar,
+    StarList,
   },
   watch: {},
-  mounted() {
-    this.getCardInfo();
-  },
   methods: {
     changeDisplayList(val) {
       // 需要再次组合下数据
       let list = cloneDeep(val);
-      list[0].amount = utilsNumber
-        .bigNum(this.myStakeAmount)
-        .div(STC_PRECISION)
-        .toString();
-      list[1].amount = this.currencyTotalAmount;
-      list[3].amount = utilsNumber
-        .bigNum(this.stakeTotalAmount)
-        .div(STC_PRECISION)
-        .toString();
+      list = list.map((d, i) => {
+        if (i === 0) {
+          return {
+            name: this.$t(`我的质押`),
+            text: `${
+              this.myStakeAmount
+                ? utilsNumber.formatNumberMeta(
+                    utilsNumber
+                      .bigNum(this.myStakeAmount)
+                      .div(Math.pow(10, this.currencyInfo.stakePrecision))
+                      .toString(),
+                    { grouped: true }
+                  ).text
+                : 0
+            } ${this.currencyInfo.stakeCurrency}`,
+          };
+        }
+        if (i === 1) {
+          return {
+            name: this.$t(`总销售量`),
+            text: `${utilsNumber.formatNumberMeta(d, { grouped: true }).text} ${
+              this.currencyInfo.assignCurrency
+            }`,
+          };
+        }
+        if (i === 2) {
+          return {
+            name: this.$t(`代币发行总量`),
+            text:
+              utilsNumber.formatNumberMeta(d, { grouped: true }).text +
+              " " +
+              `${this.currencyInfo.assignCurrency}`,
+          };
+        }
+        if (i === 3) {
+          return {
+            name: this.$t("总质押"),
+            text:
+              utilsNumber.formatNumberMeta(
+                utilsNumber
+                  .bigNum(this.stakeTotalAmount)
+                  .div(Math.pow(10, this.currencyInfo.stakePrecision))
+                  .toString(),
+                { grouped: true }
+              ).text + ` ${this.currencyInfo.stakeCurrency}`,
+          };
+        }
+        if (i === 4) {
+          return {
+            name: this.$t("兑换比例"),
+            text: `1 ${this.currencyInfo.assignCurrency} = ${
+              utilsNumber.formatNumberMeta(d, { grouped: true }).text
+            } ${this.currencyInfo.payCurrency}`,
+          };
+        }
+        if (i === 5) {
+          return {
+            name: this.$t("总募资"),
+            text: `${utilsNumber.formatNumberMeta(d, { grouped: true }).text} ${
+              this.currencyInfo.payCurrency
+            }`,
+          };
+        }
+      });
       return list;
     },
     hanleTabChange(val) {
       this.tabCategory = val;
     },
     handleToPath(val) {
-      window.open(val.url, "_blank");
+      utilsTool.openNewWindow(val.url);
     },
     clipHash(val) {
       clipboard.writeText(val).then(
@@ -195,16 +258,23 @@ export default {
         }
       );
     },
-    ...mapActions("StoreHome", ["getCardInfo"]),
   },
   computed: {
+    setSvgName() {
+      return function (type, isHover) {
+        if (isHover) {
+          return `copy-${type}-actived`;
+        }
+        return `copy-${type}`;
+      };
+    },
     ...mapState("StoreHome", {
       detailCardType: (state) => state.detailCardType,
       detailCardId: (state) => state.detailCardId,
+      currencyInfo: (state) => state.currencyInfo,
     }),
     ...mapState("StoreContracts", {
       stakeAmount: (state) => state.stakeAmount,
-      currencyTotalAmount: (state) => state.currencyTotalAmount,
       myStakeAmount: (state) => state.myStakeAmount,
       stakeTotalAmount: (state) => state.stakeTotalAmount,
     }),
@@ -241,6 +311,7 @@ export default {
     .detail-card-header-logo {
       width: 48px;
       height: 48px;
+      border-radius: 50%;
       display: inline-block;
     }
     .detail-card-header-info {
@@ -259,9 +330,10 @@ export default {
     }
   }
   .detail-card-labels {
-    .start-button {
+    .star-button {
       border-radius: 2px;
       padding: 5px 10px;
+      cursor: default;
     }
   }
   .detail-card-icons {

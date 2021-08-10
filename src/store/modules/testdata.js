@@ -3,7 +3,7 @@ const t = {
   msg: "ok",
   timeStamp: 1234567890123,
   data: {
-    init: [
+    processing: [
       {
         id: 123456, //'主键id',
         prdName: "StartPad", //项目名称、代表全称,
@@ -68,6 +68,7 @@ const t = {
         assignmentTime: 111111111111, // '代币分配时间',
       },
     ],
+    closed: [],
   },
 };
 

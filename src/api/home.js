@@ -14,7 +14,16 @@ function getCardInfo(pId) {
   });
 }
 
+function triggerStakeRecord(params) {
+  return request({
+    url: "/v1/ido/dx/user/updateUserRecord",
+    method: "POST",
+    data: params,
+  });
+}
+
 export default {
   getDataList,
   getCardInfo,
+  triggerStakeRecord,
 };

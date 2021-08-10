@@ -1,21 +1,8 @@
-### StartPad
+### AtlasPad
 
 ---
 
-### TODO
-
-- 多个币种精度获取 state.list_resource？
-- 币种精度
-- 币种资产 amount 超过 js 安全数怎么办
-- gasLimit 怎么定
-- closed inputborder 状态
-- 切换账户怎么搞
-
----
-
-### Start Mask
-
-参考地址：
+### Star Mask
 
 - [starmask-test-dapp](https://github.com/starcoinorg/starmask-test-dapp)
 

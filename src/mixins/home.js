@@ -2,7 +2,27 @@ export default {
   data() {
     return {
       timer: null,
+      isHoverList: [],
     };
+  },
+  methods: {
+    changeHoverList(index, flag, t) {
+      if (t) {
+        // 为了鼠标移动过快，hover没更新
+        // throttle应该会更好
+        this.isHoverList = [].concat(
+          this.isHoverList.map(() => {
+            return false;
+          })
+        );
+        return;
+      }
+      if (!flag) {
+        this.$set(this.isHoverList, index, false);
+        return;
+      }
+      this.$set(this.isHoverList, index, true);
+    },
   },
   computed: {
     // 右上角的label
@@ -23,36 +43,14 @@ export default {
         };
       };
     },
-  },
-  methods: {
-    /* eslint-disable*/
-    countDown(timestamp, list) {
-      // const setTime = () => {
-      //   const leftTime = timestamp - Date.now();
-      //   if (leftTime >= 0) {
-      //     const d = Math.floor(leftTime / 1000 / 60 / 60 / 24);
-      //     const h = Math.floor((leftTime / 1000 / 60 / 60) % 24);
-      //     const m = Math.floor((leftTime / 1000 / 60) % 60);
-      //     const s = Math.floor((leftTime / 1000) % 60);
-      //     // return { d, h, m, s };
-      //     p = `${d}-${h}-${m}-${s}`;
-      //   } else {
-      //     clearInterval(timer);
-      //   }
-      // };
-      // const start = () => {
-      //   console.log("A");
-      //   this.timer = setInterval(() => {
-      //     // for (let i )
-      //     list.forEach((d) => {
-      //       list[i].tt = "xadasd";
-      //     });
-      //   }, 1000);
-      // };
-      // return {
-      //   setTime,
-      //   start,
-      // };
+    // svgHover状态
+    svgName() {
+      return function (name, type, flag) {
+        if (flag) {
+          return `${name}-${type}-actived`;
+        }
+        return `${name}-${type}`;
+      };
     },
   },
 };

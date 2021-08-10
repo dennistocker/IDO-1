@@ -1,5 +1,3 @@
-// import { SMART_CONTRACTS_API } from "@constants";
-
 function proxyRule(key, targetUrl) {
   return {
     target: targetUrl,

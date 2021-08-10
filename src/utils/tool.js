@@ -1,5 +1,5 @@
 const openNewWindow = (url) => {
-  window.open(url);
+  window.open(url, "_blank");
 };
 
 const currencyTokenMap = new Map([

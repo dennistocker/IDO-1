@@ -1,24 +1,17 @@
 <template>
   <div id="app">
-    <!-- <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div> -->
-    <start-header></start-header>
+    <star-header></star-header>
     <router-view></router-view>
-    <start-footer></start-footer>
-    <!-- <router-view v-slot="{ Component }">
-      <component :is="Component" />
-    </router-view> -->
+    <star-footer></star-footer>
   </div>
 </template>
 <script>
-import StartHeader from "@startUI/StartHeader";
-import StartFooter from "@startUI/StartFooter";
+import StarHeader from "@StarUI/StarHeader";
+import StarFooter from "@StarUI/StarFooter";
 export default {
   components: {
-    StartHeader,
-    StartFooter,
+    StarHeader,
+    StarFooter,
   },
 };
 </script>
