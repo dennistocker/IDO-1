@@ -83,7 +83,10 @@ export default {
   },
   methods: {
     pushPage() {
-      window.open("https://www.baidu.com", "_blank");
+      window.open(
+        "https://medium.com/@atlaspad/atlaspad-video-tutorial-ba8985298aaa",
+        "_blank"
+      );
     },
     ...mapActions("StoreWallet", [
       "setOnboarding",

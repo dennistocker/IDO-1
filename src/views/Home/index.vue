@@ -22,9 +22,13 @@
               trborder
               dark
               class="home-banner-btns-btn"
-              @click="utilsTool.openNewWindow('https://t.me/atlaspad')"
+              @click="
+                utilsTool.openNewWindow(
+                  'https://medium.com/@atlaspad/%E4%BB%A3%E5%B8%81%E7%94%B3%E9%A2%86%E6%B5%81%E7%A8%8B-%E4%BB%85%E9%80%82%E7%94%A8%E4%BA%8E-barnard-network-1d5c456987ad'
+                )
+              "
             >
-              {{ $t("购买STC") }}
+              {{ $t("获得STC") }}
             </star-button>
           </div>
         </div>

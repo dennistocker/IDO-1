@@ -11,10 +11,11 @@
     "最小质押100": "Minimum Stake 100{currency}"
   },
   "constants": {
+    "获得STC": "Experience",
     "锁仓": "Locked",
     "支付中": "Paying",
     "已结束": "Closed",
-    "支付成功": "Paid Succeed",
+    "支付成功": "Payment",
     "质押": "Stake",
     "解押": "Unstake",
     "我的份额": "My share",
@@ -50,7 +51,7 @@
     "即将推出": "Coming Soon",
     "已经结束": "Closed",
     "参与规则": "Rules",
-    "支付成功文案": "Your {stake} and {assigin} have been transferred to your account, please check in your Starmask wallet",
+    "支付成功文案": "Your {stake} and {assign} have been transferred to your account, please check in your Starmask wallet",
     "进行中的项目": "OPEN NOW",
     "即将到来的项目": "COMING SOON",
     "已结束的项目": "CLOSED",
