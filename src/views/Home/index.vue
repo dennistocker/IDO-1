@@ -18,7 +18,12 @@
             >
               {{ $t("加入我们") }}
             </star-button>
-            <star-button trborder dark class="home-banner-btns-btn">
+            <star-button
+              trborder
+              dark
+              class="home-banner-btns-btn"
+              @click="utilsTool.openNewWindow('https://t.me/atlaspad')"
+            >
               {{ $t("购买STC") }}
             </star-button>
           </div>
@@ -59,7 +64,6 @@ import HomeDetail from "./detail.vue";
 import { mapState, mapGetters, mapActions } from "vuex";
 import StarSpace from "@StarUI/StarSpace.vue";
 import utilsTool from "@utils/tool";
-import { Wallet } from "@contactLogic";
 export default {
   data() {
     return {
@@ -80,18 +84,6 @@ export default {
     this.getDataList();
   },
   methods: {
-    async getSTC() {
-      // provider: this.stcProvider,
-      // 这里token怎么传
-      // tokenCode: [stakeAddress, payAddress, assignAddress],
-      // chianID: this.stcChianID,
-      let t = await Wallet.testnetSTC({
-        provider: this.stcProvider,
-        // chianID: this.stcChianID,
-      });
-      // 这里token怎么传
-      console.log("t", t);
-    },
     ...mapActions("StoreHome", ["getDataList"]),
     clickMethod(value) {
       if (this.walletStatus !== "connected") {
